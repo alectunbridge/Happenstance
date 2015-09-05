@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="alec.android.happenstance" >
+    xmlns:tools="http://schemas.android.com/tools"
+    package="alec.android.happenstance">
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" />
+    <uses-permission tools:ignore="MockLocation" android:name="android.permission.ACCESS_MOCK_LOCATION" />
     <application
     android:allowBackup="true"
     android:icon="@mipmap/ic_launcher"
