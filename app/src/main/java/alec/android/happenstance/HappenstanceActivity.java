@@ -5,9 +5,12 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -15,10 +18,17 @@ import java.util.concurrent.TimeUnit;
 
 public class HappenstanceActivity extends AppCompatActivity {
 
-    private static final String PROVIDER_NAME =  LocationManager.GPS_PROVIDER;
+    private static final String PROVIDER_NAME = LocationManager.GPS_PROVIDER;
     private static final String LOG_TAG = "mockLocationTest";
+    private static final double START_LATITUDE = 53.470836;
+    private static final double END_LATITUDE = 53.489276;
+    private static final double POSITION_INCREMENT = 0.004;
+    private static final double START_LONGITUDE = -2.261829;
+    private static final double END_LONGITUDE = -2.217883;
     private MockLocationProvider mock;
     private ScheduledExecutorService scheduleTaskExecutor;
+    private List<LatLong> locations;
+    private int locationIndex;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) throws SecurityException {
@@ -48,25 +58,35 @@ public class HappenstanceActivity extends AppCompatActivity {
             }
         });
 
+        buildListOfLocations();
 
-        scheduleTaskExecutor= Executors.newScheduledThreadPool(1);
+        scheduleTaskExecutor = Executors.newScheduledThreadPool(1);
 
         scheduleTaskExecutor.scheduleAtFixedRate(new Runnable() {
             public void run() {
-                if (Math.random() > 0.5) {
-                    mock.pushLocation(53.4667, -2.2333);
-                } else {
-                    mock.pushLocation(53.480194, -2.251025);
-                }
+                LatLong nextLocation = getNextLocation();
+                Log.d(LOG_TAG,"Pushing location: " + nextLocation);
+                mock.pushLocation(nextLocation);
             }
-        }, 0, 5, TimeUnit.MINUTES);
+        }, 0, 1, TimeUnit.MINUTES);
     }
-
 
     protected void onDestroy() {
         mock.shutdown();
         scheduleTaskExecutor.shutdown();
         super.onDestroy();
+    }
+
+
+    private void buildListOfLocations() {
+        locations = new ArrayList<>();
+        for(double latitude=START_LATITUDE; latitude<=END_LATITUDE; latitude+=POSITION_INCREMENT){
+            for(double longitude=START_LONGITUDE; longitude<=END_LONGITUDE; longitude+=POSITION_INCREMENT){
+                LatLong latLong = new LatLong(latitude,longitude);
+                locations.add(latLong);
+                Log.i(LOG_TAG, latLong.toString() );
+            }
+        }
     }
 
 
@@ -92,4 +112,9 @@ public class HappenstanceActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private LatLong getNextLocation() {
+        locationIndex++;
+        locationIndex %= locations.size();
+        return locations.get(locationIndex);
+    }
 }

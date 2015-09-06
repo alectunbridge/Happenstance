@@ -25,7 +25,7 @@ public class MockLocationProvider {
 
     }
 
-    public void pushLocation(double lat, double lon) {
+    public void pushLocation(LatLong latLong) {
 
         LocationManager lm = (LocationManager) ctx.getSystemService(
                 Context.LOCATION_SERVICE);
@@ -33,8 +33,8 @@ public class MockLocationProvider {
                 false, false, Criteria.POWER_LOW, Criteria.ACCURACY_FINE);
 
         Location mockLocation = new Location(providerName);
-        mockLocation.setLatitude(lat);
-        mockLocation.setLongitude(lon);
+        mockLocation.setLatitude(latLong.lat);
+        mockLocation.setLongitude(latLong.lng);
         mockLocation.setAltitude(0);
         mockLocation.setTime(System.currentTimeMillis());
         mockLocation.setElapsedRealtimeNanos(System.nanoTime());
