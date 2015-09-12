@@ -1,5 +1,8 @@
 package alec.android.happenstance;
 
+import com.google.android.gms.maps.*;
+import com.google.android.gms.maps.model.*;
+
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -16,8 +19,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 
-public class HappenstanceActivity extends AppCompatActivity {
-
+public class HappenstanceActivity extends AppCompatActivity implements OnMapReadyCallback {
     private static final String PROVIDER_NAME = LocationManager.GPS_PROVIDER;
     private static final String LOG_TAG = "mockLocationTest";
     private static final double START_LATITUDE = 53.470836;
@@ -29,6 +31,7 @@ public class HappenstanceActivity extends AppCompatActivity {
     private ScheduledExecutorService scheduleTaskExecutor;
     private List<LatLong> locations;
     private int locationIndex;
+    private GoogleMap map;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) throws SecurityException {
@@ -60,15 +63,14 @@ public class HappenstanceActivity extends AppCompatActivity {
 
         buildListOfLocations();
 
-        scheduleTaskExecutor = Executors.newScheduledThreadPool(1);
+        //map stuff
+        MapFragment mapFragment = (MapFragment) getFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+        //map stuff end
 
-        scheduleTaskExecutor.scheduleAtFixedRate(new Runnable() {
-            public void run() {
-                LatLong nextLocation = getNextLocation();
-                Log.d(LOG_TAG,"Pushing location: " + nextLocation);
-                mock.pushLocation(nextLocation);
-            }
-        }, 0, 1, TimeUnit.SECONDS);
+
+
     }
 
     protected void onDestroy() {
@@ -78,13 +80,39 @@ public class HappenstanceActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onMapReady(GoogleMap map) {
+//        LatLng sydney = new LatLng(-33.867, 151.206);
+//
+        this.map = map;
+        map.setMyLocationEnabled(true);
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(START_LATITUDE,START_LONGITUDE),13));
+//        map.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 13));
+//
+//        map.addMarker(new MarkerOptions()
+//                .title("Sydney")
+//                .snippet("The most populous city in Australia.")
+//                .position(sydney));
+        scheduleTaskExecutor = Executors.newScheduledThreadPool(1);
+
+        scheduleTaskExecutor.scheduleAtFixedRate(new Runnable() {
+            public void run() {
+                LatLong nextLocation = getNextLocation();
+                Log.d(LOG_TAG, "Pushing location: " + nextLocation);
+                mock.pushLocation(nextLocation);
+                //Log.d(LOG_TAG, getMap().addMarker(new MarkerOptions().position(new LatLng(nextLocation.lat, nextLocation.lng))).toString());
+            }
+
+        }, 0, 1, TimeUnit.SECONDS);
+    }
+
     private void buildListOfLocations() {
         locations = new ArrayList<>();
-        for(double latitude=START_LATITUDE; latitude<=END_LATITUDE; latitude+=POSITION_INCREMENT){
-            for(double longitude=START_LONGITUDE; longitude<=END_LONGITUDE; longitude+=POSITION_INCREMENT){
-                LatLong latLong = new LatLong(latitude,longitude);
+        for (double latitude = START_LATITUDE; latitude <= END_LATITUDE; latitude += POSITION_INCREMENT) {
+            for (double longitude = START_LONGITUDE; longitude <= END_LONGITUDE; longitude += POSITION_INCREMENT) {
+                LatLong latLong = new LatLong(latitude, longitude);
                 locations.add(latLong);
-                Log.i(LOG_TAG, latLong.toString() );
+                Log.i(LOG_TAG, latLong.toString());
             }
         }
     }
@@ -116,5 +144,9 @@ public class HappenstanceActivity extends AppCompatActivity {
         locationIndex++;
         locationIndex %= locations.size();
         return locations.get(locationIndex);
+    }
+
+    public GoogleMap getMap() {
+        return map;
     }
 }
