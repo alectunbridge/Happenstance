@@ -30,7 +30,7 @@ public class MockLocationProvider {
         LocationManager lm = (LocationManager) ctx.getSystemService(
                 Context.LOCATION_SERVICE);
         lm.addTestProvider(providerName, false, false, false, false, false,
-                false, false, Criteria.POWER_LOW, Criteria.ACCURACY_FINE);
+                false, false, Criteria.POWER_HIGH, Criteria.ACCURACY_FINE);
 
         Location mockLocation = new Location(providerName);
         mockLocation.setLatitude(latLong.lat);

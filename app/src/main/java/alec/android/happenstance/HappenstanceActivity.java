@@ -22,7 +22,7 @@ public class HappenstanceActivity extends AppCompatActivity {
     private static final String LOG_TAG = "mockLocationTest";
     private static final double START_LATITUDE = 53.470836;
     private static final double END_LATITUDE = 53.489276;
-    private static final double POSITION_INCREMENT = 0.004;
+    private static final double POSITION_INCREMENT = 0.001;
     private static final double START_LONGITUDE = -2.261829;
     private static final double END_LONGITUDE = -2.217883;
     private MockLocationProvider mock;
@@ -33,7 +33,7 @@ public class HappenstanceActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) throws SecurityException {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_my);
+        setContentView(R.layout.activity_happenstance);
 
         mock = new MockLocationProvider(PROVIDER_NAME, this);
 
@@ -68,7 +68,7 @@ public class HappenstanceActivity extends AppCompatActivity {
                 Log.d(LOG_TAG,"Pushing location: " + nextLocation);
                 mock.pushLocation(nextLocation);
             }
-        }, 0, 1, TimeUnit.MINUTES);
+        }, 0, 1, TimeUnit.SECONDS);
     }
 
     protected void onDestroy() {
